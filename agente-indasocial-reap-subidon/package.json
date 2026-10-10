@@ -1,0 +1,23 @@
+{
+  "name": "indasocial-reap",
+  "version": "0.6.0",
+  "description": "Indasocial: Asistente matchmaker + MatchChat + agente de producción con Reap Agentic Payments",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "build": "esbuild src/browser.js --bundle --format=iife --platform=browser --target=es2020 --outfile=public/engine.js",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js",
+    "reap:check": "node scripts/reap-check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
+}

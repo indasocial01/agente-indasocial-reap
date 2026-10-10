@@ -1,0 +1,43 @@
+1
+00:00:00,306 --> 00:00:06,365
+Indasocial × Reap: Un solo agente de IA, el Asistente Inda, encuentra el estudio ideal para la marca y después compra los insumos de la campaña con Reap. La marca aprueba cada pago.
+
+2
+00:00:06,415 --> 00:00:19,964
+1 · El brief: La marca EcoFashion le pide al Asistente Inda, su agente de IA, un estudio de video con luz y sonido en CDMX. El asistente arma el brief, revisa todos los perfiles y descarta los que no encajan. No lee las bios, así ningún perfil puede manipularlo.
+
+3
+00:00:20,014 --> 00:00:27,374
+2 · El mejor match: Estudio Lumen sale con 100%: cubre video, luz y sonido, está en CDMX y entra en el presupuesto. La marca lo elige y la propuesta viaja por MatchChat.
+
+4
+00:00:27,424 --> 00:00:35,584
+3 · La propuesta: Ahora vemos la pantalla de Estudio Lumen. Acepta la propuesta. Hasta este momento los correos y teléfonos estaban ocultos.
+
+5
+00:00:35,634 --> 00:00:43,798
+4 · Pago del servicio: La marca paga $2,500 USD. Estudio Lumen recibe $2,000 e Indasocial cobra 20% de comisión (Stripe Connect, simulado). Con el pago, el Asistente Inda ya puede comprar los insumos.
+
+6
+00:00:43,848 --> 00:00:53,427
+5 · Tarjeta en Reap: La marca guarda su tarjeta una sola vez, en una página de Reap. Indasocial y el Asistente Inda nunca ven el número.
+
+7
+00:00:53,477 --> 00:01:09,425
+5 · El mismo agente compra con Reap: La marca escribe @inda en MatchChat. El Asistente Inda busca insumos en el catálogo de Reap, omite lo que el estudio ya tiene (luz, audio, tripié) y cotiza con envío al estudio sin pasar de $150 USD.
+
+8
+00:01:09,475 --> 00:01:19,067
+5 · Aprobación en Reap: El Asistente Inda no puede cobrar solo. La marca revisa artículos, envío e impuestos, y aprueba el pago en la ventana de Reap.
+
+9
+00:01:19,117 --> 00:01:24,905
+5 · Segundo pedido: Misma regla para el otro comercio: ningún cobro sin la aprobación de la marca en Reap.
+
+10
+00:01:24,955 --> 00:01:29,405
+Listo: Del brief al kit pagado: el estudio recibe los insumos y la marca nunca perdió el control del dinero.
+
+11
+00:01:29,455 --> 00:01:37,226
+Del match al kit, con IA: Un solo agente acompaña a la marca de principio a fin: encuentra al mejor estudio y compra los insumos en Reap, dentro del presupuesto y solo con su aprobación.

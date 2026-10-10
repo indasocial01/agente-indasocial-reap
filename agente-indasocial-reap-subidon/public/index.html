@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indasocial · Asistente y MatchChat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#1A1445; --violet:#7B4FFF; --cyan:#4FCBE8; --coral:#FF6B4A; --lime:#C6F24E; --cream:#F5F1EA;
+  --bg:#110d2e; --panel:#1A1445; --panel2:#221b55; --line:#2c2566; --text:#F5F1EA; --muted:#a9a3c9;
+  --display:Sora,Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
+h1,h2,h3{font-family:var(--display);margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--line)}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;background:linear-gradient(90deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
+.who{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.who button{padding:6px 10px;font-size:13px;background:transparent;color:var(--muted)}
+.who button.on{background:var(--violet);color:#fff}
+button{font:600 14px Inter,system-ui,-apple-system,'Segoe UI',sans-serif;border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--coral);color:#fff}button.cyan{background:var(--cyan);color:#06222a}
+button.lime{background:var(--lime);color:#1d2400}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.small{padding:6px 10px;font-size:12px}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.steps{display:flex;gap:6px;max-width:1240px;margin:14px auto 0;padding:0 20px;overflow-x:auto}
+.step{flex:1;min-width:130px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:12px;color:var(--muted)}
+.step b{display:block;font-family:var(--display);font-size:13px;color:var(--text)}
+.step.done{border-color:rgba(198,242,78,.4)}.step.done b::after{content:" ✓";color:var(--lime)}
+.step.now{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset}
+.step .rail{font-size:11px;color:var(--cyan)}
+
+.wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:14px 20px 24px;max-width:1240px;margin:0 auto}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;padding:12px 16px}.steps{padding:0 16px}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;min-height:620px}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.phead h2{font-size:16px}.phead small{color:var(--muted);font-size:12px}
+.msgs{flex:1;overflow:auto;padding:12px 0;display:flex;flex-direction:column;gap:10px;max-height:760px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:14px}
+.msg p{margin:0;white-space:pre-wrap}
+.msg .from{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
+.msg.me{align-self:flex-end;background:var(--violet)}.msg.me .from{color:#e6dcff}
+.msg.other{align-self:flex-start;background:#2a2360}
+.msg.bot{align-self:flex-start;background:rgba(79,203,232,.09);border:1px solid rgba(79,203,232,.35);max-width:100%}
+.msg.sys{align-self:center;background:transparent;border:1px dashed var(--line);color:var(--muted);font-size:13px;max-width:96%;text-align:center}
+.masked{font-size:11px;color:var(--coral);display:block;margin-top:4px}
+.empty{color:var(--muted);text-align:center;font-size:14px;margin:auto 10px}
+
+.matches{display:grid;gap:10px;margin-top:10px}
+.match{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.match.top{border-color:var(--cyan)}
+.mrow{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.match h3{font-size:15px}.meta{font-size:12px;color:var(--muted)}
+.score{font-family:var(--display);font-weight:700;color:var(--lime);font-size:15px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.chips span{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(123,79,255,.18);color:#d7c9ff}
+.match ul{margin:6px 0;padding-left:0;list-style:none;font-size:13px}
+.match ul li::before{content:"✓ ";color:var(--lime)}
+.port{font-size:12px;color:var(--muted);margin:6px 0 10px}
+.port b{color:var(--text);font-weight:600}
+
+.prop{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0 0}
+#propBox:not(:empty)+.msgs{border-top:1px solid var(--line);margin-top:10px}
+.prop h3{font-size:15px;margin:6px 0}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px}
+.pill.sent{background:rgba(79,203,232,.15);color:var(--cyan)}.pill.accepted{background:var(--lime);color:#1d2400}
+.pill.declined{background:rgba(255,107,74,.2);color:var(--coral)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0;font-size:13px}
+dt{color:var(--muted)}dd{margin:0;text-align:right}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.split{font-size:12px;color:var(--muted);margin-top:6px}
+.budget{margin-top:8px;font-size:12px;color:var(--muted)}
+.bar{height:6px;background:#2c2566;border-radius:99px;margin-top:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--cyan);transition:width .4s}
+
+.orders{display:grid;gap:8px;margin-top:10px}
+.order{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.order h3{font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order ul{margin:4px 0 8px;padding-left:18px;color:var(--muted);font-size:13px}
+.order .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.status{font-size:12px;font-weight:600}
+.status.COMPLETED{color:var(--lime)}.status.AWAITING_APPROVAL{color:var(--cyan)}.status.CANCELED,.status.FAILED{color:var(--coral)}
+
+form.send{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
+form.send input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px 12px;font:14px Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.err{color:var(--coral);font-size:13px;margin-top:6px;min-height:1em}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--lime);color:#1d2400;padding:10px 16px;border-radius:10px;font-weight:600;display:none;z-index:9}
+.profile{margin-top:12px;font-size:14px}
+.modal{position:fixed;inset:0;background:rgba(5,4,18,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.open{display:flex}
+.reap{background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:14px;max-width:420px;width:100%;padding:22px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.reap .tag{display:inline-block;font-size:12px;background:#21262d;border:1px solid #30363d;padding:3px 8px;border-radius:99px;color:#71f7ec;margin-bottom:10px}
+.reap h2{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:19px;margin:0 0 6px}
+.reap p{color:#9da7b3;font-size:14px;margin:6px 0}
+.reap input{width:100%;margin:5px 0;padding:10px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif}
+.reap table{width:100%;font-size:14px;border-collapse:collapse;margin:10px 0}.reap td{padding:6px 0;border-bottom:1px solid #21262d}.reap td:last-child{text-align:right}
+.reap .total td{font-weight:700;border:0}
+.reap .row{display:flex;gap:8px;margin-top:14px}.reap .row button{flex:1}
+.reap .ok{background:#71f7ec;color:#06201e}.reap .no{background:#21262d;color:#e6edf3;border:1px solid #30363d}
+.banner{max-width:1240px;margin:10px auto 0;padding:0 20px;font-size:12px;color:var(--muted)}
+.banner span{border:1px dashed var(--line);border-radius:8px;padding:5px 10px;display:inline-block}
+@media (max-width:900px){.banner{padding:0 16px}}
+
+/* Guía: qué hacer ahora */
+.guide{max-width:1200px;margin:14px auto 0;padding:14px 16px;border-radius:16px;background:linear-gradient(120deg,rgba(123,79,255,.28),rgba(79,203,232,.14));border:1px solid rgba(123,79,255,.6);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.gwrap{max-width:1240px;margin:0 auto;padding:0 20px}
+@media (max-width:900px){.gwrap{padding:0 16px}}
+.gnum{font-family:var(--display);font-weight:700;font-size:13px;background:var(--lime);color:#1d2400;border-radius:99px;padding:4px 10px;white-space:nowrap}
+.gtext{flex:1;min-width:220px}
+.gtext b{font-family:var(--display);display:block;font-size:15px}
+.gtext span{font-size:13px;color:#d8d3f0}
+.gas{font-size:11px;color:var(--cyan);display:block;margin-top:2px}
+.gbtns{display:flex;gap:8px;flex-wrap:wrap}
+.how{max-width:1240px;margin:8px auto 0;padding:0 20px;font-size:13px;color:var(--muted)}
+.how b{color:var(--text)}
+@media (max-width:900px){.how{padding:0 16px}}
+
+/* Estado del agente */
+.agent{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.agent::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin-right:6px;vertical-align:1px}
+.agent.ready{color:var(--lime);border-color:rgba(198,242,78,.4)}.agent.ready::before{background:var(--lime)}
+.agent.busy{color:var(--cyan);border-color:var(--cyan)}.agent.busy::before{background:var(--cyan);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}
+
+/* Burbuja "trabajando" y registro de pasos */
+.msg.working{border-style:dashed}
+.live,.trace ol{margin:6px 0 0;padding:0;list-style:none;font-size:13px}
+.live li,.trace li{padding:3px 0 3px 22px;position:relative;color:#d8d3f0}
+.live li::before,.trace li::before{content:"✓";position:absolute;left:2px;color:var(--lime)}
+.live li.doing::before{content:"";width:10px;height:10px;top:7px;border:2px solid var(--cyan);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.live li{animation:fadein .3s}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.rtag{font-size:10px;font-weight:700;background:#71f7ec;color:#06201e;border-radius:4px;padding:1px 5px;margin-right:4px}
+.trace{margin-top:8px;border-top:1px solid rgba(79,203,232,.25);padding-top:6px}
+.trace summary{cursor:pointer;font-size:12px;color:var(--cyan);font-weight:600}
+.pulse-btn{animation:glow 1s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(198,242,78,.0)}50%{box-shadow:0 0 0 6px rgba(198,242,78,.35)}}
+
+/* Modo video (?video): subtítulos grandes, portada y cierre */
+body.vid .how,body.vid .steps,body.vid .banner{display:none}
+body.vid{overflow:hidden}
+body.vid .wrap{padding-top:12px}
+body.vid .panel{min-height:0;height:calc(100vh - 300px)}
+body.vid .msgs{min-height:0;max-height:none}
+body.vid .toast{bottom:auto;top:76px}
+.cap{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(1180px,calc(100% - 32px));background:rgba(9,7,26,.94);border:1px solid var(--violet);border-radius:14px;padding:12px 20px;z-index:25;display:none;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.cap.on{display:block;animation:fadein .4s}
+.cap b{font-family:var(--display);color:var(--lime);font-size:15px;display:block;margin-bottom:2px}
+.cap span{font-size:18px;line-height:1.4}
+.card{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;background:radial-gradient(circle at 30% 20%,#2c1f7a,var(--bg) 70%)}
+.card.on{display:flex;animation:fadein .6s}
+.card h1{font-size:54px;line-height:1.1;background:linear-gradient(90deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card p{font-size:22px;max-width:900px;color:#d8d3f0;margin:18px 0 0}
+.card .tags{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;justify-content:center}
+.card .tags span{border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:15px;color:var(--cyan)}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">INDA</span>
+  <div class="hright">
+    <span class="chip" id="mode">Reap: …</span>
+    <div class="who" role="group" aria-label="Ver como">
+      <button data-who="brand" class="on">Marca · EcoFashion Co.</button>
+      <button data-who="creator">Estudio · Lumen</button>
+    </div>
+    <button class="ghost small" id="reset">Reiniciar demo</button>
+  </div>
+</header>
+
+<div class="banner" id="banner"></div>
+<div class="how">Aquí trabaja <b>un agente de IA, el Asistente Inda</b>: primero encuentra el mejor estudio para la marca y después, en MatchChat, compra los insumos con <b>Reap</b>. Sigue el recuadro morado o dale a <b>Reproducir demo completo</b>.</div>
+<div class="gwrap"><div class="guide" id="guide"></div></div>
+<nav class="steps" id="steps" aria-label="Historia"></nav>
+
+<main class="wrap">
+  <section class="panel" id="assistantPanel">
+    <div class="phead"><div><h2>Asistente Inda</h2><small>Encuentra a tu creador o estudio ideal</small></div><span class="agent ready" id="aAgent">Agente listo</span></div>
+    <div class="msgs" id="aMsgs"></div>
+    <form class="send" id="aSend">
+      <input id="aText" autocomplete="off" placeholder="Describe lo que necesitas…">
+      <button class="primary" type="submit">Enviar</button>
+    </form>
+    <div class="hint" id="aHint">Cuéntale qué quieres producir, dónde y con qué presupuesto.</div>
+    <div class="err" id="aErr"></div>
+  </section>
+
+  <section class="panel">
+    <div class="phead"><div><h2>MatchChat</h2><small id="mcWith"></small></div><span class="agent" id="cAgent">Asistente Inda</span></div>
+    <div id="propBox"></div>
+    <div class="msgs" id="cMsgs"></div>
+    <form class="send" id="cSend">
+      <input id="cText" autocomplete="off" placeholder="Escribe un mensaje…">
+      <button class="primary" type="submit">Enviar</button>
+    </form>
+    <div class="hint" id="cHint"></div>
+    <div class="err" id="cErr"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<div class="cap" id="cap"><b id="capT"></b><span id="capX"></span></div>
+<div class="card" id="card"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Reap"><div class="reap" id="reapBox"></div></div>
+
+<script src="engine.js"></script>
+<script>
+const BRAND = 'brand_ecofashion', STUDIO = 'creator_lumen';
+const BRIEF = 'Busco un estudio de producción de video con luz y sonido en CDMX para 3 reels de nuestra colección eco, presupuesto $2,500 USD';
+const KIT = '@inda arma el kit de producción: escenografía sostenible y fondo';
+let who = 'brand', S = null, busy = false;
+const $ = (id) => document.getElementById(id);
+const me = () => (who === 'brand' ? BRAND : STUDIO);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (m) => m ? `$${Number(m.amount).toLocaleString('en-US', { minimumFractionDigits: m.amount % 1 ? 2 : 0, maximumFractionDigits: 2 })} ${m.currency}` : '';
+const PLURAL = { reel: 'reels', post: 'posts', story: 'stories', video: 'videos' };
+const deliv = (ds) => ds.map(d => `${d.count} ${d.count > 1 ? (PLURAL[d.type] || d.type) : d.type}`).join(' + ');
+const STATUS = { QUOTED: 'Cotizado', AWAITING_APPROVAL: 'Esperando aprobación', COMPLETED: 'Pagado', CANCELED: 'Rechazado', FAILED: 'Falló', EXPIRED: 'Expiró' };
+const SERVICE = { video: 'Video', luz: 'Luz', sonido: 'Sonido', edicion: 'Edición', foto: 'Foto' };
+
+// El demo funciona de dos formas:
+//  - "servidor": hay una API (npm start) y se le pregunta a ella.
+//  - "navegador": no hay API (abierto directo o en hosting estático); el mismo
+//    backend corre aquí (engine.js) y guarda el estado en este navegador.
+const VERSION = 'v4 · 1 agente: Asistente Inda';
+let MODE = null, LOCAL = null;
+function useLocal() {
+  if (!globalThis.IndaEngine) throw new Error('Falta el archivo engine.js junto a index.html. En la terminal corre: npm run build');
+  MODE = 'local';
+  LOCAL = LOCAL || globalThis.IndaEngine.createLocalBackend();
+}
+async function detectMode() {
+  if (location.protocol !== 'file:') {
+    try {
+      const r = await fetch('./api/health', { headers: { Accept: 'application/json' } });
+      const j = await r.json();
+      if (r.ok && j.ok) { MODE = 'server'; return; }
+    } catch { /* sin API: usar el motor local */ }
+  }
+  useLocal();
+}
+async function api(path, opts = {}) {
+  const method = opts.method || 'GET';
+  if (MODE === 'local') {
+    const r = await LOCAL.request(method, path, opts.body ? JSON.parse(opts.body) : undefined, me());
+    if (r.status >= 400) throw new Error(r.body?.message || 'Error');
+    return r.body;
+  }
+  let res;
+  try {
+    res = await fetch('.' + path, { ...opts, method, headers: { 'Content-Type': 'application/json', 'x-user-id': me(), ...(opts.headers || {}) } });
+  } catch {
+    // Se cayó el servidor: seguir en modo navegador en lugar de mostrar "Failed to fetch".
+    useLocal();
+    toast('No encontré el servidor: sigo en modo navegador');
+    return api(path, opts);
+  }
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.message || 'Error');
+  return body;
+}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let AUTO = false;
+const QS = new URLSearchParams(location.search);
+const VIDEO = QS.has('video');
+const STEP_MS = VIDEO ? 950 : 650;
+if (VIDEO) document.body.classList.add('vid');
+
+// Ventanas de Reap. En modo simulado se muestran aquí mismo; con Reap real
+// (sandbox) se navega a la página que hospeda Reap.
+const isSim = (url) => /\/mock-reap\//.test(url || '');
+const simId = (url) => url.split('?')[0].split('/').pop();
+function modal(html) { $('reapBox').innerHTML = html; $('modal').classList.add('open'); }
+function closeModal() { $('modal').classList.remove('open'); $('reapBox').innerHTML = ''; }
+function reapCard(enrollmentId) {
+  return new Promise((resolve) => {
+    modal(`<div class="tag">Reap · simulado</div><h2>Guarda tu tarjeta</h2>
+      <p>Con Reap real esta página la hospeda Reap. Indasocial nunca recibe el número de tarjeta.</p>
+      <input value="4242 4242 4242 4242" aria-label="Número de tarjeta" readonly><input value="12 / 29" aria-label="Vencimiento" readonly>
+      <div class="row"><button class="no" id="rNo">Cancelar</button><button class="ok" id="rOk">Guardar tarjeta de prueba</button></div>`);
+    $('rNo').onclick = () => { closeModal(); resolve(false); };
+    $('rOk').onclick = async () => { $('rOk').disabled = true; await api(`/api/sim/enroll/${enrollmentId}`, { method: 'POST' }); closeModal(); resolve(true); };
+    autoClick();
+  });
+}
+async function reapApproval(checkoutId) {
+  const { checkout, quote } = await api(`/api/sim/approve/${checkoutId}`);
+  const b = quote.amountBreakdown;
+  const rows = quote.lines.map(l => `<tr><td>${esc(l.name)}<br><small style="color:#9da7b3">${esc(l.merchant)}</small></td><td>${fmt(l.unitPrice)}</td></tr>`).join('');
+  return new Promise((resolve) => {
+    modal(`<div class="tag">Reap · simulado</div><h2>Aprueba este cobro</h2>
+      <p>El Asistente Inda preparó esta compra. No se cobra nada hasta que la apruebes.</p>
+      <table>${rows}<tr><td>Envío</td><td>${fmt(b.shipping)}</td></tr><tr><td>Impuestos</td><td>${fmt(b.tax.amount)}</td></tr>
+      <tr class="total"><td>Total</td><td>${fmt(checkout.amount)}</td></tr></table>
+      <p>Tarjeta VISA •••• 4242</p>
+      <div class="row"><button class="no" id="rNo">Rechazar</button><button class="ok" id="rOk">Aprobar y pagar</button></div>`);
+    const decide = async (approve) => { $('rOk').disabled = $('rNo').disabled = true; await api(`/api/sim/approve/${checkoutId}`, { method: 'POST', body: JSON.stringify({ approve }) }); closeModal(); resolve(approve); };
+    $('rNo').onclick = () => decide(false);
+    $('rOk').onclick = () => decide(true);
+    autoClick();
+  });
+}
+// En "Reproducir demo completo" la ventana de Reap se aprueba sola después de un momento.
+function autoClick() {
+  $('rOk').classList.add('pulse-btn');
+  if (AUTO) setTimeout(() => { const b = $('rOk'); if (b && !b.disabled) b.click(); }, 2200);
+}
+// Reap real (sandbox): su página se abre en otra pestaña y aquí esperamos el resultado.
+function reapExternal(url, title, text, check) {
+  return new Promise((resolve) => {
+    modal(`<div class="tag">Reap · sandbox real</div><h2>${esc(title)}</h2><p>${esc(text)}</p>
+      <div class="row"><button class="ok" id="rOpen">Abrir página de Reap</button></div>
+      <p style="font-size:13px">Esperando a Reap… esta ventana se cierra sola cuando termines allá.</p>
+      <div class="row"><button class="no" id="rNo">Cancelar</button></div>`);
+    let done = false, timer = null;
+    const finish = (v) => { if (done) return; done = true; clearInterval(timer); closeModal(); resolve(v); };
+    $('rOpen').onclick = () => window.open(url, '_blank');
+    $('rNo').onclick = () => finish(null);
+    timer = setInterval(async () => { try { const r = await check(); if (r) finish(r); } catch { /* reintenta */ } }, 3000);
+  });
+}
+let toastTimer = null;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), 3500); }
+
+// ---------- El agente "trabajando" ----------
+const traceLine = (l) => esc(l).replace(/^Reap · /, '<span class="rtag">Reap</span>');
+function traceHtml(trace) {
+  if (!trace || !trace.length) return '';
+  return `<details class="trace"><summary>Ver lo que hizo el agente (${trace.length} pasos)</summary><ol>${trace.map(l => `<li>${traceLine(l)}</li>`).join('')}</ol></details>`;
+}
+function setAgent(id, state, label) { const el = $(id); el.className = `agent ${state}`; el.textContent = label; }
+// Muestra una burbuja "trabajando…" y va revelando cada paso del agente.
+function working(boxId, chipId, title) {
+  const box = $(boxId);
+  const el = document.createElement('div');
+  el.className = 'msg bot working';
+  el.innerHTML = `<span class="from">${esc(title)} · trabajando…</span><ol class="live"><li class="doing">Leyendo el mensaje…</li></ol>`;
+  box.appendChild(el); box.scrollTop = box.scrollHeight;
+  setAgent(chipId, 'busy', 'Trabajando…');
+  const ol = el.querySelector('ol');
+  return {
+    async play(trace) {
+      ol.innerHTML = '';
+      for (const line of trace) {
+        const li = document.createElement('li');
+        li.className = 'doing'; li.innerHTML = traceLine(line);
+        ol.appendChild(li); box.scrollTop = box.scrollHeight;
+        await sleep(STEP_MS);
+        li.className = '';
+      }
+      el.querySelector('.from').textContent = `${title} · listo`;
+      await sleep(500);
+    },
+  };
+}
+
+function stage() {
+  const p = S.proposal;
+  if (!p) return S.assistant.some(m => m.matches) ? 2 : 1;
+  if (p.status === 'sent') return 3;
+  if (p.status === 'declined') return 3;
+  if (p.feeStatus === 'pending') return 4;
+  return 5;
+}
+
+function renderSteps() {
+  const s = stage();
+  const kitDone = S.orders.length && S.orders.every(o => o.status === 'COMPLETED');
+  const steps = [
+    ['Brief', 'La marca le pide al asistente', ''],
+    ['Mejores matches', 'El Asistente Inda rankea y explica', ''],
+    ['Propuesta', 'MatchChat · el estudio acepta', ''],
+    ['Pago del servicio', 'Fee con 20% de comisión', 'Stripe Connect'],
+    ['Kit de producción', 'El Asistente Inda compra insumos', 'Reap'],
+  ];
+  $('steps').innerHTML = steps.map(([t, d, rail], i) => {
+    const n = i + 1;
+    const cls = n < s || (n === 5 && kitDone) ? 'done' : n === s ? 'now' : '';
+    return `<div class="step ${cls}"><b>${n}. ${t}</b>${d}${rail ? `<div class="rail">${rail}</div>` : ''}</div>`;
+  }).join('');
+}
+
+function matchCard(m, i) {
+  const c = m.creator, taken = !!S.proposal;
+  return `<div class="match ${i === 0 ? 'top' : ''}">
+    <div class="mrow"><div><h3>${esc(c.name)}</h3>
+      <div class="meta">${c.kind === 'studio' ? 'Estudio' : 'Creador'} · ${esc(c.city)} · ${esc(c.pillars.join(', '))}</div></div>
+      <span class="score">${m.score}%</span></div>
+    <div class="chips">${c.services.map(s => `<span>${SERVICE[s] || s}</span>`).join('')}<span>$${c.priceRange.min.toLocaleString('en-US')}–$${c.priceRange.max.toLocaleString('en-US')}</span></div>
+    <ul>${m.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+    <div class="port"><b>Portafolio:</b> ${esc(c.portfolio.slice(0, 2).join(' · '))}</div>
+    ${who === 'brand' ? `<button class="${i === 0 ? 'primary' : 'ghost'} small" data-pick="${c.id}" ${taken ? 'disabled' : ''}>Elegir y enviar propuesta</button>` : ''}
+  </div>`;
+}
+
+function renderAssistant() {
+  const panel = $('assistantPanel');
+  if (who === 'creator') {
+    const c = S.creators.find(x => x.id === STUDIO);
+    $('aMsgs').innerHTML = `<div class="profile">
+      <p style="color:var(--muted);margin:0 0 10px">El asistente ayuda a las marcas a encontrar creadores. Así ve la marca tu perfil (sin datos de contacto):</p>
+      ${matchCard({ creator: c, score: '—', reasons: ['Portafolio nativo, servicios y rango de precios'] }, 1).replace(/<span class="score">—%<\/span>/, '')}
+    </div>`;
+    $('aSend').style.display = 'none'; $('aHint').style.display = 'none';
+    return;
+  }
+  $('aSend').style.display = ''; $('aHint').style.display = '';
+  const box = $('aMsgs');
+  box.innerHTML = S.assistant.length ? S.assistant.map(m => {
+    const mine = m.from === BRAND;
+    return `<div class="msg ${mine ? 'me' : 'bot'}"><span class="from">${mine ? esc(S.brand.name) : 'Asistente Inda · agente IA'}</span><p>${esc(m.text)}</p>
+      ${m.matches ? `<div class="matches">${m.matches.map(matchCard).join('')}</div>` : ''}${mine ? '' : traceHtml(m.trace)}</div>`;
+  }).join('') : `<p class="empty">Hola, ${esc(S.brand.name)}. ¿Qué campaña quieres producir? Te muestro a los creadores y estudios que mejor encajan.</p>`;
+  // Si la última respuesta trae matches, mostrar desde el primero; si no, ir al final.
+  const last = box.lastElementChild;
+  box.scrollTop = last && last.querySelector('.matches') ? last.offsetTop - box.offsetTop - 8 : box.scrollHeight;
+  box.querySelectorAll('[data-pick]').forEach(b => (b.onclick = () => pick(b.dataset.pick, b)));
+  if (!$('aText').value && !S.assistant.length) $('aText').value = BRIEF;
+}
+
+function orderHtml(o) {
+  const canApprove = who === 'brand' && o.status === 'QUOTED';
+  return `<div class="order">
+    <h3><span>${esc(o.merchant)}</span><span>${fmt(o.finalAmount || o.amount)}</span></h3>
+    <ul>${o.items.map(i => `<li>${esc(i.name)} — ${fmt(i.price)}</li>`).join('')}<li>Envío ${fmt(o.breakdown.shipping)} · impuestos ${fmt(o.breakdown.tax.amount)}</li></ul>
+    <div class="foot"><span class="status ${o.status}">${STATUS[o.status] || o.status}${o.reapOrderId ? ` · pedido #${esc(o.reapOrderId)}` : ''}</span>
+      ${canApprove ? `<button class="primary small" data-approve="${o.id}">Aprobar en Reap</button>` : ''}
+      ${o.status === 'AWAITING_APPROVAL' && o.approvalUrl && who === 'brand' ? `<button class="cyan small" data-reopen="${o.id}">Ir a aprobar</button>` : ''}</div></div>`;
+}
+
+function renderProposal() {
+  const p = S.proposal, box = $('propBox');
+  if (!p) { box.innerHTML = ''; $('mcWith').textContent = ''; return; }
+  $('mcWith').textContent = who === 'brand' ? `con ${p.creatorName}` : `con ${p.brandName}`;
+  const label = { sent: 'enviada', accepted: 'aceptada', declined: 'rechazada' }[p.status];
+  let actions = '';
+  if (p.status === 'sent' && who === 'creator') actions = `<button class="lime small" data-act="accept">Aceptar propuesta</button><button class="ghost small" data-act="decline">Rechazar</button>`;
+  if (p.status === 'sent' && who === 'brand') actions = `<span class="meta">Esperando respuesta de ${esc(p.creatorName)}…</span>`;
+  if (p.status === 'accepted' && p.feeStatus === 'pending' && who === 'brand') actions = `<button class="lime small" data-act="pay">Pagar servicio · ${fmt(p.fee)}</button><span class="meta">Stripe Connect (simulado)</span>`;
+  let extra = '';
+  if (p.feeBreakdown) extra += `<div class="split">Servicio pagado (simulado): ${esc(p.creatorName)} recibe ${fmt(p.feeBreakdown.creatorPayout)} · comisión Indasocial ${fmt(p.feeBreakdown.commission)}</div>`;
+  if (p.feeStatus === 'paid_simulated') {
+    const spent = S.orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + (o.finalAmount?.amount || 0), 0);
+    const pct = Math.min(100, spent / p.productionBudget.amount * 100);
+    extra += `<div class="budget">Insumos de producción vía Reap: ${fmt({ amount: Math.round(spent * 100) / 100, currency: 'USD' })} de ${fmt(p.productionBudget)}<div class="bar"><i style="width:${pct}%"></i></div></div>`;
+    if (who === 'brand') extra += S.card.status === 'ACTIVE'
+      ? `<div class="split">Tarjeta en Reap: <b style="color:var(--lime)">activa</b> ${S.card.card ? `(${S.card.card.brand} •••• ${S.card.card.last4})` : ''}</div>`
+      : `<div class="actions"><button class="cyan small" data-act="card">Guardar tarjeta en Reap</button><span class="meta">Una sola vez. Indasocial nunca ve el número.</span></div>`;
+  }
+  box.innerHTML = `<div class="prop"><span class="pill ${p.status}">Propuesta ${label}</span>
+    <h3>${esc(p.title)}</h3>
+    ${p.feeStatus === 'paid_simulated'
+      ? `<div class="meta">${esc(p.brandName)} × ${esc(p.creatorName)} · ${esc(deliv(p.deliverables))} · servicio ${fmt(p.fee)} · producción máx. ${fmt(p.productionBudget)} · ${esc(p.timeline)}</div>`
+      : `<dl><dt>Marca</dt><dd>${esc(p.brandName)}</dd><dt>Estudio</dt><dd>${esc(p.creatorName)}</dd>
+      <dt>Entregables</dt><dd>${esc(deliv(p.deliverables))}</dd><dt>Servicio</dt><dd>${fmt(p.fee)}</dd>
+      <dt>Producción (máx.)</dt><dd>${fmt(p.productionBudget)}</dd><dt>Plazo</dt><dd>${esc(p.timeline)}</dd></dl>`}
+    ${extra}<div class="actions">${actions}</div></div>`;
+  box.querySelectorAll('[data-act]').forEach(b => (b.onclick = () => act(b.dataset.act, b)));
+}
+
+function renderChat() {
+  const p = S.proposal, box = $('cMsgs');
+  const byId = Object.fromEntries(S.orders.map(o => [o.id, o]));
+  if (!p) {
+    box.innerHTML = `<p class="empty">${who === 'brand' ? 'Aquí aparecerá la conversación con el estudio cuando elijas un match.' : 'Aquí te llegan las propuestas de las marcas.'}</p>`;
+  } else {
+    box.innerHTML = S.chat.map(m => {
+      const isInda = m.from === 'inda' || m.from === 'agente'; // 'agente' = datos guardados por versiones anteriores
+      if (isInda && !m.orderIds && !m.trace) return `<div class="msg sys">${esc(m.text)}</div>`;
+      const cls = isInda ? 'bot' : m.from === me() ? 'me' : 'other';
+      const name = isInda ? 'Asistente Inda · agente IA' : m.from === BRAND ? p.brandName : p.creatorName;
+      const orders = (m.orderIds || []).map(id => byId[id]).filter(Boolean);
+      return `<div class="msg ${cls}"><span class="from">${esc(name)}</span><p>${esc(m.text)}</p>
+        ${m.masked ? '<span class="masked">Contacto oculto hasta aceptar la propuesta</span>' : ''}
+        ${orders.length ? `<div class="orders">${orders.map(orderHtml).join('')}</div>` : ''}${traceHtml(m.trace)}</div>`;
+    }).join('');
+  }
+  box.scrollTop = box.scrollHeight;
+  box.querySelectorAll('[data-approve]').forEach(b => (b.onclick = () => approve(b.dataset.approve, b)));
+  box.querySelectorAll('[data-reopen]').forEach(b => (b.onclick = () => reopen(b.dataset.reopen, b)));
+
+  const s = stage();
+  $('cText').disabled = !p || p.status === 'declined';
+  $('cHint').innerHTML = !p ? '' : who === 'brand' && s === 5
+    ? 'Escribe <b>@inda</b> para que el Asistente Inda arme el kit de producción con Reap.'
+    : p.status === 'sent' ? 'Correos, teléfonos y @usuarios se ocultan hasta aceptar la propuesta.' : '';
+  if (who === 'brand' && s === 5 && !S.orders.length && !$('cText').value) $('cText').value = KIT;
+}
+
+function renderAgents() {
+  setAgent('aAgent', 'ready', 'Agente listo');
+  const p = S.proposal;
+  if (p && p.status === 'accepted' && p.feeStatus !== 'pending') setAgent('cAgent', 'ready', 'Asistente Inda: listo para comprar · escribe @inda');
+  else setAgent('cAgent', '', 'Asistente Inda: compra insumos al pagar el servicio');
+}
+
+function render() {
+  $('mode').textContent = `Reap: ${S.reapMode === 'mock' ? 'simulado' : 'sandbox'}`;
+  $('banner').innerHTML = (MODE === 'local'
+    ? '<span>Demo en tu navegador · Reap y Stripe simulados · los datos se guardan solo en este navegador'
+    : '<span>Conectado al servidor de Indasocial' + (S.reapMode === 'mock' ? ' · Reap y Stripe simulados' : ' · Reap sandbox real · Stripe simulado')) + ` · ${VERSION}</span>`;
+  renderSteps(); renderAssistant(); renderProposal(); renderChat(); renderAgents(); renderGuide();
+}
+async function load() { S = await api('/api/demo'); render(); }
+
+async function guard(errEl, fn) {
+  if (busy) return; busy = true; $(errEl).textContent = '';
+  try { await fn(); } catch (e) { $(errEl).textContent = e.message; }
+  busy = false;
+}
+
+// ---------- Acciones (las usan los botones, la guía y el modo automático) ----------
+function sendAssistant(text) {
+  return guard('aErr', async () => {
+    $('aText').value = '';
+    const box = $('aMsgs');
+    if (!S.assistant.length) box.innerHTML = '';
+    box.insertAdjacentHTML('beforeend', `<div class="msg me"><span class="from">${esc(S.brand.name)}</span><p>${esc(text)}</p></div>`);
+    const w = working('aMsgs', 'aAgent', 'Asistente Inda');
+    try {
+      const r = await api('/api/assistant/messages', { method: 'POST', body: JSON.stringify({ text }) });
+      await w.play(r.trace || []);
+    } finally { await load(); }
+  });
+}
+function sendChat(text) {
+  return guard('cErr', async () => {
+    $('cText').value = '';
+    const callsAgent = /@(inda|agente)\b/i.test(text) && who === 'brand';
+    let w = null;
+    if (callsAgent) {
+      $('cMsgs').insertAdjacentHTML('beforeend', `<div class="msg me"><span class="from">${esc(S.proposal.brandName)}</span><p>${esc(text)}</p></div>`);
+      w = working('cMsgs', 'cAgent', 'Asistente Inda');
+    }
+    try {
+      const r = await api(`/api/proposals/${S.proposal.id}/chat`, { method: 'POST', body: JSON.stringify({ text }) });
+      if (w) await w.play(r.trace || ['No pude armar el kit (mira el mensaje del Asistente Inda)']);
+    } finally { await load(); }
+  });
+}
+$('aSend').onsubmit = (ev) => { ev.preventDefault(); const text = $('aText').value.trim(); if (text) sendAssistant(text); };
+$('cSend').onsubmit = (ev) => { ev.preventDefault(); const text = $('cText').value.trim(); if (text && S.proposal) sendChat(text); };
+
+function pick(id, btn) { if (btn) btn.disabled = true; return guard('aErr', async () => { await api(`/api/assistant/matches/${id}/select`, { method: 'POST' }); await load(); toast('Propuesta enviada por MatchChat'); }); }
+function act(kind, btn) {
+  if (btn) btn.disabled = true;
+  return guard('cErr', async () => {
+    const id = S.proposal.id;
+    if (kind === 'accept') { await api(`/api/proposals/${id}/accept`, { method: 'POST' }); toast('Propuesta aceptada'); }
+    if (kind === 'decline') await api(`/api/proposals/${id}/decline`, { method: 'POST' });
+    if (kind === 'pay') { await api(`/api/proposals/${id}/pay-fee`, { method: 'POST' }); toast('Servicio pagado (simulado)'); }
+    if (kind === 'card') {
+      const r = await api(`/api/brands/${BRAND}/card`, { method: 'POST' });
+      if (r.cardEntryUrl && !isSim(r.cardEntryUrl)) {
+        const c = await reapExternal(r.cardEntryUrl, 'Guarda tu tarjeta en Reap',
+          'Se abre la página segura de Reap. Escribe la tarjeta de prueba del sandbox y el código OTP que te pida. Indasocial nunca ve el número.',
+          async () => { const c = await api(`/api/brands/${BRAND}/card`); return ['ACTIVE', 'FAILED', 'EXPIRED', 'REVOKED'].includes(c.status) ? c : null; });
+        if (c) toast(c.status === 'ACTIVE' ? 'Tarjeta guardada en Reap' : `Tarjeta: ${c.status}`);
+      } else if (r.cardEntryUrl && (await reapCard(r.enrollmentId))) toast('Tarjeta guardada en Reap');
+    }
+    await load();
+  });
+}
+function approve(id, btn) {
+  if (btn) btn.disabled = true;
+  return guard('cErr', async () => {
+    const o = await api(`/api/kit-orders/${id}/approve`, { method: 'POST' });
+    if (o.approvalUrl && !isSim(o.approvalUrl)) {
+      await load();
+      await waitReapApproval(o);
+    } else if (o.approvalUrl) {
+      await load();
+      await reapApproval(simId(o.approvalUrl));
+      const done = await api(`/api/kit-orders/${id}`);
+      toast(done.status === 'COMPLETED' ? `Pago aprobado en Reap · pedido #${done.reapOrderId}` : `Pedido: ${STATUS[done.status] || done.status}`);
+    }
+    await load();
+  });
+}
+async function waitReapApproval(o) {
+  const done = await reapExternal(o.approvalUrl, 'Aprueba este cobro en Reap',
+    `El Asistente Inda preparó la compra con ${o.merchant} por ${fmt(o.amount)}. Revisa el total en Reap y apruébalo (te pedirá el código OTP). No se cobra nada sin tu aprobación.`,
+    async () => { const r = await api(`/api/kit-orders/${o.id}`); return r.status !== 'AWAITING_APPROVAL' ? r : null; });
+  if (done) toast(done.status === 'COMPLETED' ? `Pago aprobado en Reap · pedido #${done.reapOrderId}` : `Pedido: ${STATUS[done.status] || done.status}`);
+}
+function reopen(id, btn) {
+  const o = S.orders.find(x => x.id === id); if (!o) return;
+  if (btn) btn.disabled = true;
+  if (!isSim(o.approvalUrl)) return guard('cErr', async () => { await waitReapApproval(o); await load(); });
+  return guard('cErr', async () => { await reapApproval(simId(o.approvalUrl)); const done = await api(`/api/kit-orders/${id}`);
+    toast(done.status === 'COMPLETED' ? `Pago aprobado en Reap · pedido #${done.reapOrderId}` : `Pedido: ${STATUS[done.status] || done.status}`); await load(); });
+}
+function resetDemo() {
+  return guard('aErr', async () => { await api('/api/demo/reset', { method: 'POST' }); $('aText').value = ''; $('cText').value = ''; setWho('brand'); await load(); });
+}
+// Escribe el texto en el campo letra por letra (para que se vea qué se envía).
+async function typeInto(id, text) {
+  const el = $(id); el.value = ''; el.focus();
+  for (let i = 0; i < text.length; i += 3) { el.value = text.slice(0, i + 3); await sleep(18); }
+}
+
+// ---------- Guía: qué hacer ahora ----------
+// ---------- Subtítulos del modo video ----------
+const CAPLOG = [];
+function caption(title, text) {
+  $('capT').textContent = title; $('capX').textContent = text;
+  $('cap').classList.add('on');
+  CAPLOG.push({ t: performance.now(), title, text });
+}
+function showCard(html) { $('card').innerHTML = html; $('card').classList.add('on'); CAPLOG.push({ t: performance.now(), title: 'card', text: $('card').innerText }); }
+function hideCard() { $('card').classList.remove('on'); }
+function narration(st) {
+  if (st.n === 1) return ['1 · El brief', 'La marca EcoFashion le pide al Asistente Inda, su agente de IA, un estudio de video con luz y sonido en CDMX. El asistente arma el brief, revisa todos los perfiles y descarta los que no encajan. No lee las bios, así ningún perfil puede manipularlo.'];
+  if (st.n === 2) return ['2 · El mejor match', 'Estudio Lumen sale con 100%: cubre video, luz y sonido, está en CDMX y entra en el presupuesto. La marca lo elige y la propuesta viaja por MatchChat.'];
+  if (st.n === 3) return ['3 · La propuesta', 'Ahora vemos la pantalla de Estudio Lumen. Acepta la propuesta. Hasta este momento los correos y teléfonos estaban ocultos.'];
+  if (st.n === 4) return ['4 · Pago del servicio', 'La marca paga $2,500 USD. Estudio Lumen recibe $2,000 e Indasocial cobra 20% de comisión (Stripe Connect, simulado). Con el pago, el Asistente Inda ya puede comprar los insumos.'];
+  if (/tarjeta/i.test(st.title)) return ['5 · Tarjeta en Reap', 'La marca guarda su tarjeta una sola vez, en una página de Reap. Indasocial y el Asistente Inda nunca ven el número.'];
+  if (/kit/i.test(st.title)) return ['5 · El mismo agente compra con Reap', 'La marca escribe @inda en MatchChat. El Asistente Inda busca insumos en el catálogo de Reap, omite lo que el estudio ya tiene (luz, audio, tripié) y cotiza con envío al estudio sin pasar de $150 USD.'];
+  const paid = S.orders.filter(o => o.status === 'COMPLETED').length;
+  return paid ? ['5 · Segundo pedido', 'Misma regla para el otro comercio: ningún cobro sin la aprobación de la marca en Reap.'] : ['5 · Aprobación en Reap', 'El Asistente Inda no puede cobrar solo. La marca revisa artículos, envío e impuestos, y aprueba el pago en la ventana de Reap.'];
+}
+
+function nextStep() {
+  if (!S) return null;
+  const p = S.proposal, s = stage();
+  if (s === 1) return { n: 1, as: 'brand', title: 'Pídele al Asistente Inda lo que necesitas',
+    text: 'La marca EcoFashion busca un estudio de video. Ya dejé el mensaje escrito; el Asistente Inda lo lee y busca al mejor match.',
+    btn: 'Enviar el mensaje', run: async () => { await typeInto('aText', BRIEF); await sendAssistant(BRIEF); } };
+  if (s === 2) {
+    const top = S.assistant.filter(m => m.matches).pop().matches[0];
+    return { n: 2, as: 'brand', title: `Elige a ${top.creator.name}`,
+      text: 'El Asistente Inda comparó todos los perfiles y te dejó los 3 mejores con sus razones. Abre "Ver lo que hizo el agente" para ver cómo decidió.',
+      btn: `Elegir a ${top.creator.name}`, run: () => pick(top.creator.id) };
+  }
+  if (p.status === 'declined') return { n: 3, title: 'El estudio rechazó la propuesta', text: 'Reinicia el demo para volver a empezar.', btn: 'Reiniciar demo', run: resetDemo, done: true };
+  if (s === 3) return { n: 3, as: 'creator', title: 'Ahora eres Estudio Lumen: acepta la propuesta',
+    text: 'La propuesta llegó por MatchChat. Mientras no la acepte, los correos y teléfonos se ocultan.',
+    btn: 'Aceptar como Estudio Lumen', run: () => act('accept') };
+  if (s === 4) return { n: 4, as: 'brand', title: 'Vuelves a ser la marca: paga el servicio',
+    text: `Estudio Lumen recibe ${fmt(p.feeBreakdown?.creatorPayout || { amount: p.fee.amount * 0.8, currency: 'USD' })} e Indasocial cobra 20% de comisión (Stripe Connect simulado). Con el pago, el Asistente Inda ya puede comprar los insumos.`,
+    btn: 'Pagar el servicio', run: () => act('pay') };
+  if (S.card.status !== 'ACTIVE') return { n: 5, as: 'brand', title: 'Guarda una tarjeta de prueba en Reap',
+    text: 'Solo una vez. La tarjeta se guarda en Reap; Indasocial y el Asistente Inda nunca ven el número.',
+    btn: 'Guardar tarjeta en Reap', run: () => act('card') };
+  if (!S.orders.length) return { n: 5, as: 'brand', title: 'Pídele al Asistente Inda el kit de producción',
+    text: `Escribe @inda en MatchChat. El mismo asistente busca en Reap, omite lo que el estudio ya tiene y cotiza sin pasar de ${fmt(p.productionBudget)}.`,
+    btn: 'Pedir el kit con @inda', run: async () => { await typeInto('cText', KIT); await sendChat(KIT); } };
+  const pend = S.orders.find(o => o.status === 'QUOTED' || o.status === 'AWAITING_APPROVAL');
+  if (pend) return { n: 5, as: 'brand', title: 'Aprueba el pedido en Reap',
+    text: 'El Asistente Inda dejó el pedido listo pero no puede cobrar solo: la marca lo aprueba en la ventana de Reap.',
+    btn: 'Aprobar en Reap', run: () => (pend.status === 'QUOTED' ? approve(pend.id) : reopen(pend.id)) };
+  const paid = S.orders.some(o => o.status === 'COMPLETED');
+  return { n: 5, done: true, title: paid ? '¡Listo! Viste la historia completa' : 'Rechazaste el cobro: no se pagó nada',
+    text: paid ? 'Brief → match → propuesta → pago del servicio → kit comprado con Reap y enviado al estudio.' : 'Puedes reiniciar el demo para intentarlo otra vez.',
+    btn: 'Reiniciar demo', run: resetDemo };
+}
+function renderGuide() {
+  const st = nextStep(); if (!st) return;
+  const asLabel = st.as ? (st.as === 'brand' ? 'Como Marca · EcoFashion Co.' : 'Como Estudio · Lumen') + (st.as !== who ? ' (cambio de vista automático)' : '') : '';
+  $('guide').innerHTML = `<span class="gnum">${st.done ? '✓' : `Paso ${st.n} de 5`}</span>
+    <div class="gtext"><b>${esc(st.title)}</b><span>${esc(st.text)}</span>${asLabel ? `<span class="gas">${esc(asLabel)}</span>` : ''}</div>
+    <div class="gbtns">${AUTO && !st.done
+      ? '<button class="ghost" id="gStop">Detener</button>'
+      : `<button class="lime" id="gDo">${st.done ? esc(st.btn) : `Hazlo por mí: ${esc(st.btn)}`}</button>
+         <button class="ghost" id="gAuto">▶ Reproducir demo completo</button>`}</div>`;
+  if ($('gDo')) $('gDo').onclick = () => runStep(st);
+  if ($('gAuto')) $('gAuto').onclick = autoplay;
+  if ($('gStop')) $('gStop').onclick = () => { AUTO = false; renderGuide(); };
+}
+async function runStep(st) {
+  if (busy) return;
+  if (VIDEO && AUTO) { caption(...narration(st)); await sleep(3600); }
+  if (st.as && st.as !== who) { setWho(st.as); toast(st.as === 'brand' ? 'Ahora ves como la marca' : 'Ahora ves como Estudio Lumen'); await sleep(800); }
+  await st.run();
+}
+const signature = () => JSON.stringify([stage(), S.proposal?.status, S.proposal?.feeStatus, S.card.status, S.orders.map(o => o.status)]);
+async function autoplay() {
+  if (busy) return;
+  if (nextStep()?.done) { await resetDemo(); await sleep(400); }
+  AUTO = true; renderGuide();
+  if (VIDEO) {
+    showCard(`<h1>Indasocial × Reap</h1><p>Un solo agente de IA, el Asistente Inda, encuentra el estudio ideal para la marca y después compra los insumos de la campaña con Reap. La marca aprueba cada pago.</p>
+      <div class="tags"><span>1 agente: Asistente Inda</span><span>Encuentra el match</span><span>Compra con Reap</span><span>MatchChat</span></div>`);
+    await sleep(5500); hideCard(); await sleep(600);
+  }
+  while (AUTO) {
+    const st = nextStep();
+    if (!st || st.done) break;
+    const before = signature();
+    await runStep(st);
+    if (signature() === before) break; // algo falló: parar y dejar el error visible
+    if (nextStep()?.done) break;
+    await sleep(VIDEO ? 3800 : 1400);
+  }
+  if (VIDEO && nextStep()?.done) {
+    caption('Listo', 'Del brief al kit pagado: el estudio recibe los insumos y la marca nunca perdió el control del dinero.');
+    await sleep(4500);
+    $('cap').classList.remove('on');
+    showCard(`<h1>Del match al kit, con IA</h1><p>Un solo agente acompaña a la marca de principio a fin: encuentra al mejor estudio y compra los insumos en Reap, dentro del presupuesto y solo con su aprobación.</p>
+      <div class="tags"><span>Contacto protegido</span><span>Comisión 20%</span><span>Sin datos de tarjeta para la IA</span><span>Reap Agentic Payments</span></div>`);
+    await sleep(6500);
+    document.title = 'VIDEO_DONE';
+  }
+  AUTO = false; renderGuide();
+}
+
+function setWho(w) {
+  who = w;
+  document.querySelectorAll('[data-who]').forEach(x => x.classList.toggle('on', x.dataset.who === w));
+  $('cText').value = ''; if (S) render();
+}
+document.querySelectorAll('[data-who]').forEach(b => (b.onclick = () => setWho(b.dataset.who)));
+$('reset').onclick = () => { AUTO = false; resetDemo(); };
+
+const q = QS;
+detectMode().then(load).then(() => {
+  if (q.get('order')) { const o = S.orders.find(x => x.id === q.get('order')); if (o) toast(o.status === 'COMPLETED' ? `Pago aprobado en Reap · pedido #${o.reapOrderId}` : `Pedido: ${STATUS[o.status] || o.status}`); }
+  if (q.get('card')) toast('Tarjeta guardada en Reap');
+  if (q.has('auto') || VIDEO) autoplay();
+  if (q.toString()) try { history.replaceState(null, '', location.pathname); } catch { /* file:// */ }
+}).catch(e => {
+  $('aErr').textContent = e.message;
+  $('guide').innerHTML = `<div class="gtext"><b>No pude iniciar el demo</b><span>${esc(e.message)}</span></div>`;
+});
+</script>
+</body>
+</html>
